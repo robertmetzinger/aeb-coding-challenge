@@ -4,3 +4,16 @@
 *.iml
 *.ipr
 out/
+
+# Compiled class file
+*.class
+target/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
