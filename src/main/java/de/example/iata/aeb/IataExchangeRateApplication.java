@@ -25,7 +25,8 @@ public class IataExchangeRateApplication {
 	}
 	
 	private void readIataExchangeRates() {
-		//TODO: Hier muss das Einlesen der IATA-W�hrungskurse aus der Datei geschehen.
+		ExchangeRateService service = new ExchangeRateService();
+		service.parseExchangeRates();
 	}
 	
 	private void displayMenu() {
