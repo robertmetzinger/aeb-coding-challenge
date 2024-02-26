@@ -1,7 +1,6 @@
 package de.example.iata.aeb;
 
 import java.text.NumberFormat;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -56,5 +55,14 @@ public class ExchangeRateService {
         } catch (ExchangeRateNotFoundException e) {
             System.out.println("Der Währungskurs konnte nicht ermittelt werden.");
         }
+    }
+
+    public void enterExchangeRate(String currencyIsoCode, LocalDate startDate, LocalDate endDate, float exchangeRateValue) {
+        ExchangeRate exchangeRate = new ExchangeRate(currencyIsoCode, exchangeRateValue, startDate, endDate);
+        exchangeRateSet.adjustOverlappingExchangeRates(exchangeRate);
+        exchangeRateSet.addExchangeRate(exchangeRate);
+        System.out.print("added ");
+        exchangeRate.print();
+        System.out.println();
     }
 }
