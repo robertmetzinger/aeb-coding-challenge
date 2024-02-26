@@ -49,9 +49,14 @@ public class ExchangeRateService {
             return exchangeRateSet.getExchangeRateByCurrencyIsoCodeAndDate(currencyIsoCode, date);
     }
     public boolean enterExchangeRate(String currencyIsoCode, LocalDate startDate, LocalDate endDate, float exchangeRateValue) {
+        ExchangeRateSet backup = (ExchangeRateSet) exchangeRateSet.clone();
+
         ExchangeRate exchangeRate = new ExchangeRate(currencyIsoCode, exchangeRateValue, startDate, endDate);
         exchangeRateSet.adjustOverlappingExchangeRates(exchangeRate);
         boolean added = exchangeRateSet.addExchangeRate(exchangeRate);
+        if (!added) {
+            exchangeRateSet = backup;
+        }
         return added;
     }
 }
