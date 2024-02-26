@@ -1,5 +1,6 @@
 package de.example.iata.aeb;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,10 +20,25 @@ public class ExchangeRateSet {
         return true;
     }
 
+    public ExchangeRate getExchangeRateByCurrencyIsoCodeAndDate(String currencyIsoCode, LocalDate date) throws ExchangeRateNotFoundException {
+        List<ExchangeRate> exchangeRatesWithIsoCode = getExchangeRatesByCurrencyIsoCode(currencyIsoCode);
+        for (ExchangeRate exchangeRate : exchangeRatesWithIsoCode) {
+            if (!date.isBefore(exchangeRate.getStartValidDate())) {
+                // = date is equal or after currently checked exchange rate
+                if (!date.isAfter(exchangeRate.getEndValidDate())) {
+                    // = date is equal or before currently checked exchange rate
+                    // means that date is in range, so we found the exchange rate
+                    return exchangeRate;
+                }
+            }
+        }
+        throw new ExchangeRateNotFoundException();
+    }
+
     private List<ExchangeRate> getExchangeRatesByCurrencyIsoCode(String currencyIsoCode) {
         List<ExchangeRate> exchangeRatesWithIsoCode = new ArrayList<>();
         for (ExchangeRate exchangeRate : exchangeRates) {
-            if (exchangeRate.getCurrencyIsoCode().equals(currencyIsoCode)) {
+            if (exchangeRate.getCurrencyIsoCode().equals(currencyIsoCode.toUpperCase())) {
                 exchangeRatesWithIsoCode.add(exchangeRate);
             }
         }
