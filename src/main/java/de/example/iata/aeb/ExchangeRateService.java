@@ -3,7 +3,6 @@ package de.example.iata.aeb;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,22 +38,27 @@ public class ExchangeRateService {
                 }
             } catch (Exception e) {
                 // ignore line if it has incomplete or invalid data
-                System.out.println("Couldn't parse exchange rate " + Arrays.toString(parsedLine));
+                // System.out.println("Couldn't parse exchange rate " + Arrays.toString(parsedLine));
             }
         }
-        exchangeRateSet.print();
+        //exchangeRateSet.print();
     }
 
     public ExchangeRate getExchangeRateByCurrencyIsoCodeAndDate(String currencyIsoCode, LocalDate date) throws ExchangeRateNotFoundException {
-            return exchangeRateSet.getExchangeRateByCurrencyIsoCodeAndDate(currencyIsoCode, date);
+        return exchangeRateSet.getExchangeRateByCurrencyIsoCodeAndDate(currencyIsoCode, date);
     }
+
     public boolean enterExchangeRate(String currencyIsoCode, LocalDate startDate, LocalDate endDate, float exchangeRateValue) {
         ExchangeRateSet backup = (ExchangeRateSet) exchangeRateSet.clone();
 
         ExchangeRate exchangeRate = new ExchangeRate(currencyIsoCode, exchangeRateValue, startDate, endDate);
         exchangeRateSet.adjustOverlappingExchangeRates(exchangeRate);
         boolean added = exchangeRateSet.addExchangeRate(exchangeRate);
-        if (!added) {
+        if (added) {
+            /*System.out.print("added ");
+            exchangeRate.print();
+            System.out.println();*/
+        } else {
             exchangeRateSet = backup;
         }
         return added;
