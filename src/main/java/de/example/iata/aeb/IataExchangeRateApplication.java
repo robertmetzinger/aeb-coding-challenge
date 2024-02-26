@@ -80,9 +80,9 @@ public class IataExchangeRateApplication {
         String currencyIsoCode = getUserInputForStringField("W�hrung");
         LocalDate from = getUserInputForDateField("Von");
         LocalDate to = getUserInputForDateField("Bis");
-        Double exchangeRate = getUserInputForDoubleField("Euro-Kurs f�r 1 " + currencyIsoCode);
+        float exchangeRate = getUserInputForFloatField("Euro-Kurs f�r 1 " + currencyIsoCode);
 
-        //TODO: Aus den Variablen muss jetzt ein Kurs zusammengesetzt und in die eingelesenen Kurse eingef�gt werden.
+        exchangeRateService.enterExchangeRate(currencyIsoCode, from, to, exchangeRate);
     }
 
     private String getUserInputForStringField(String fieldName) throws Exception {
@@ -101,5 +101,10 @@ public class IataExchangeRateApplication {
     private Double getUserInputForDoubleField(String fieldName) throws Exception {
         String doubleString = getUserInputForStringField(fieldName);
         return Double.valueOf(doubleString);
+    }
+
+    private float getUserInputForFloatField(String fieldName) throws Exception {
+        String floatString = getUserInputForStringField(fieldName);
+        return Float.parseFloat(floatString);
     }
 }
