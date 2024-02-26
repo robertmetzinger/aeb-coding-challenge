@@ -30,7 +30,7 @@ public class ExchangeRateService {
             // ignore country name parsedLine[0]
             try {
                 exchangeRateValue = NumberFormat.getNumberInstance(Locale.GERMAN).parse(parsedLine[1]).floatValue();
-                isoCountryCode = parsedLine[2];
+                isoCountryCode = parsedLine[2].toUpperCase();
                 startValidDate = LocalDate.parse(parsedLine[3], formatter);
                 endValidDate = LocalDate.parse(parsedLine[4], formatter);
 
@@ -44,5 +44,17 @@ public class ExchangeRateService {
             }
         }
         exchangeRateSet.print();
+    }
+
+    public void displayExchangeRateByCurrencyIsoCodeAndDate(String currencyIsoCode, LocalDate date) throws ExchangeRateNotFoundException {
+        try {
+            ExchangeRate exchangeRate = exchangeRateSet.getExchangeRateByCurrencyIsoCodeAndDate(currencyIsoCode, date);
+            System.out.printf("Der Währungskurs für %s zum Datum %s beträgt %s.",
+                    currencyIsoCode.toUpperCase(),
+                    date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                    exchangeRate.getExchangeRateValue());
+        } catch (ExchangeRateNotFoundException e) {
+            System.out.println("Der Währungskurs konnte nicht ermittelt werden.");
+        }
     }
 }
