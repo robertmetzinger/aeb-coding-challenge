@@ -9,16 +9,13 @@ import java.util.Locale;
 
 public class ExchangeRateService {
 
-    private CSVFileReader reader;
     private ExchangeRateSet exchangeRateSet;
 
     public ExchangeRateService() {
-        reader = new CSVFileReader();
         exchangeRateSet = new ExchangeRateSet();
     }
 
-    public void parseExchangeRates() {
-        List<String[]> parsedData = reader.readFile("src/main/resources/KursExport.csv", ";", 6);
+    public void parseExchangeRates(List<String[]> parsedData) {
 
         float exchangeRateValue;
         String isoCountryCode;
@@ -35,7 +32,10 @@ public class ExchangeRateService {
 
                 if (parsedLine[5].isEmpty()) { // ignore if line has comments
                     ExchangeRate exchangeRate = new ExchangeRate(isoCountryCode, exchangeRateValue, startValidDate, endValidDate);
-                    exchangeRateSet.addExchangeRate(exchangeRate);
+                    boolean added = exchangeRateSet.addExchangeRate(exchangeRate);
+                    if (!added) {
+                        throw new Exception();
+                    }
                 }
             } catch (Exception e) {
                 // ignore line if it has incomplete or invalid data
@@ -45,24 +45,13 @@ public class ExchangeRateService {
         exchangeRateSet.print();
     }
 
-    public void displayExchangeRateByCurrencyIsoCodeAndDate(String currencyIsoCode, LocalDate date) throws ExchangeRateNotFoundException {
-        try {
-            ExchangeRate exchangeRate = exchangeRateSet.getExchangeRateByCurrencyIsoCodeAndDate(currencyIsoCode, date);
-            System.out.printf("Der Währungskurs für %s zum Datum %s beträgt %s.",
-                    currencyIsoCode.toUpperCase(),
-                    date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-                    exchangeRate.getExchangeRateValue());
-        } catch (ExchangeRateNotFoundException e) {
-            System.out.println("Der Währungskurs konnte nicht ermittelt werden.");
-        }
+    public ExchangeRate getExchangeRateByCurrencyIsoCodeAndDate(String currencyIsoCode, LocalDate date) throws ExchangeRateNotFoundException {
+            return exchangeRateSet.getExchangeRateByCurrencyIsoCodeAndDate(currencyIsoCode, date);
     }
-
-    public void enterExchangeRate(String currencyIsoCode, LocalDate startDate, LocalDate endDate, float exchangeRateValue) {
+    public boolean enterExchangeRate(String currencyIsoCode, LocalDate startDate, LocalDate endDate, float exchangeRateValue) {
         ExchangeRate exchangeRate = new ExchangeRate(currencyIsoCode, exchangeRateValue, startDate, endDate);
         exchangeRateSet.adjustOverlappingExchangeRates(exchangeRate);
-        exchangeRateSet.addExchangeRate(exchangeRate);
-        System.out.print("added ");
-        exchangeRate.print();
-        System.out.println();
+        boolean added = exchangeRateSet.addExchangeRate(exchangeRate);
+        return added;
     }
 }

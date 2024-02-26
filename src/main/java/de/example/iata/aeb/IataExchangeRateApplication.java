@@ -4,12 +4,16 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 public class IataExchangeRateApplication {
 
     private ExchangeRateService exchangeRateService;
 
     public void run() throws Exception {
+
+        exchangeRateService = new ExchangeRateService();
+
         readIataExchangeRates();
 
         displayMenu();
@@ -26,8 +30,9 @@ public class IataExchangeRateApplication {
     }
 
     private void readIataExchangeRates() {
-        exchangeRateService = new ExchangeRateService();
-        exchangeRateService.parseExchangeRates();
+        CSVFileReader reader = new CSVFileReader();
+        List<String[]> exchangeRatesData = reader.readFile("src/main/resources/KursExport.csv", ";", 6);
+        exchangeRateService.parseExchangeRates(exchangeRatesData);
     }
 
     private void displayMenu() {
@@ -69,20 +74,37 @@ public class IataExchangeRateApplication {
         String currencyIsoCode = getUserInputForStringField("W�hrung");
         try {
             LocalDate date = getUserInputForDateField("Datum");
-            exchangeRateService.displayExchangeRateByCurrencyIsoCodeAndDate(currencyIsoCode, date);
+            ExchangeRate exchangeRate = exchangeRateService.getExchangeRateByCurrencyIsoCodeAndDate(currencyIsoCode, date);
+
+            System.out.printf("Der Währungskurs für %s zum Datum %s beträgt %s.",
+                    currencyIsoCode.toUpperCase(),
+                    date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                    exchangeRate.getExchangeRateValue());
+        } catch (ExchangeRateNotFoundException e) {
+            System.out.println("Der Währungskurs konnte nicht ermittelt werden.");
         } catch (Exception e) {
-            System.out.println("Datumseingabe konnte nicht verarbeitet werden");
+            System.out.println("Eingabe konnte nicht verarbeitet werden.");
         }
 
     }
 
-    private void enterIataExchangeRate() throws Exception {
-        String currencyIsoCode = getUserInputForStringField("W�hrung");
-        LocalDate from = getUserInputForDateField("Von");
-        LocalDate to = getUserInputForDateField("Bis");
-        float exchangeRate = getUserInputForFloatField("Euro-Kurs f�r 1 " + currencyIsoCode);
+    private void enterIataExchangeRate() {
+        try {
+            String currencyIsoCode = getUserInputForStringField("W�hrung");
+            LocalDate from = getUserInputForDateField("Von");
+            LocalDate to = getUserInputForDateField("Bis");
+            float exchangeRate = getUserInputForFloatField("Euro-Kurs f�r 1 " + currencyIsoCode);
 
-        exchangeRateService.enterExchangeRate(currencyIsoCode, from, to, exchangeRate);
+            boolean success = exchangeRateService.enterExchangeRate(currencyIsoCode, from, to, exchangeRate);
+            if (success) {
+                System.out.println("Neuer Währungskurs erfolgreich hinzugefügt.");
+            } else {
+                System.out.println("Neuer Währungskurs konnte nicht hinzugefügt werden.");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Eingabe konnte nicht verarbeitet werden.");
+        }
     }
 
     private String getUserInputForStringField(String fieldName) throws Exception {
