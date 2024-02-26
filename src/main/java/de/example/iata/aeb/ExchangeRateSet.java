@@ -183,4 +183,13 @@ public class ExchangeRateSet {
             System.out.println();
         }
     }
+
+    @Override
+    public Object clone() {
+        ExchangeRateSet exchangeRateSetClone = new ExchangeRateSet();
+        for (ExchangeRate exchangeRate : exchangeRates) {
+            exchangeRateSetClone.addExchangeRate((ExchangeRate) exchangeRate.clone());
+        }
+        return exchangeRateSetClone;
+    }
 }

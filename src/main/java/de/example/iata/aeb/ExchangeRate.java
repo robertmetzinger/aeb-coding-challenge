@@ -49,4 +49,9 @@ public class ExchangeRate {
                 getStartValidDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
                 getEndValidDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
     }
+
+    @Override
+    public Object clone() {
+        return new ExchangeRate(this.currencyIsoCode, this.exchangeRateValue, this.startValidDate, this.endValidDate);
+    }
 }
