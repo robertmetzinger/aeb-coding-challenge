@@ -40,4 +40,9 @@ public class ExchangeRate {
                 getStartValidDate(),
                 getEndValidDate());
     }
+
+    @Override
+    public Object clone() {
+        return new ExchangeRate(this.currencyIsoCode, this.exchangeRateValue, this.startValidDate, this.endValidDate);
+    }
 }
