@@ -53,9 +53,9 @@ public class ExchangeRateSet {
         for (ExchangeRate exchangeRateOfIteration : exchangeRatesWithIsoCode) {
             if (exchangeRateOfIteration.getStartValidDate().isEqual(exchangeRate.getStartValidDate())) {
                 if (exchangeRateOfIteration.getEndValidDate().isEqual(exchangeRate.getEndValidDate())) {
-                    System.out.print("Duplicate ignored ");
+                    /*System.out.print("Duplicate ignored ");
                     exchangeRate.print();
-                    System.out.println();
+                    System.out.println();*/
                     return true;
                 }
             }
@@ -65,9 +65,9 @@ public class ExchangeRateSet {
 
     private boolean violatesTimeConstraints(ExchangeRate exchangeRate) {
         if (exchangeRate.getStartValidDate().isAfter(exchangeRate.getEndValidDate())) {
-            System.out.print("Violates time constraints ");
+            /*System.out.print("Violates time constraints ");
             exchangeRate.print();
-            System.out.println();
+            System.out.println();*/
             return true;
         }
         return false;
@@ -75,103 +75,106 @@ public class ExchangeRateSet {
 
     public void adjustOverlappingExchangeRates(ExchangeRate inputExchangeRate) {
         String currencyIsoCode = inputExchangeRate.getCurrencyIsoCode();
-        LocalDate startDate = inputExchangeRate.getStartValidDate();
-        LocalDate endDate = inputExchangeRate.getEndValidDate();
+        LocalDate startDateInput = inputExchangeRate.getStartValidDate();
+        LocalDate endDateInput = inputExchangeRate.getEndValidDate();
 
         List<ExchangeRate> exchangeRatesWithIsoCode = getExchangeRatesByCurrencyIsoCode(currencyIsoCode);
         for (ExchangeRate exchangeRate : exchangeRatesWithIsoCode) {
 
+            LocalDate startDateOld = exchangeRate.getStartValidDate();
+            LocalDate endDateOld = exchangeRate.getEndValidDate();
+
             // check if existing exchange rates are within date range of new exchange rate
-            if (startDate.isBefore(exchangeRate.getStartValidDate()) ||
-                    startDate.isEqual(exchangeRate.getStartValidDate())) {
+            if (startDateInput.isBefore(startDateOld) ||
+                    startDateInput.isEqual(startDateOld)) {
                 // -> new start date <= existing exchange rate start date
-                if (endDate.isAfter(exchangeRate.getEndValidDate()) ||
-                        endDate.isEqual(exchangeRate.getEndValidDate())) {
+                if (endDateInput.isAfter(endDateOld) ||
+                        endDateInput.isEqual(endDateOld)) {
                     // -> new end date >= existing exchange rate end date
 
                     // remove existing exchange rate, because new exchange rate covers date range
                     exchangeRates.remove(exchangeRate);
-                    System.out.print("removed ");
+                    /*System.out.print("removed ");
                     exchangeRate.print();
-                    System.out.println();
+                    System.out.println();*/
                     continue;
                 }
             }
 
             // check if new exchange rate is within existing exchange rate date range
-            if (startDate.isAfter(exchangeRate.getStartValidDate()) ||
-                    startDate.isEqual(exchangeRate.getStartValidDate())) {
+            if (startDateInput.isAfter(startDateOld) ||
+                    startDateInput.isEqual(startDateOld)) {
                 // -> new start date >= existing exchange rate start date
-                if (endDate.isBefore(exchangeRate.getEndValidDate()) ||
-                        endDate.isEqual(exchangeRate.getEndValidDate())) {
+                if (endDateInput.isBefore(endDateOld) ||
+                        endDateInput.isEqual(endDateOld)) {
                     // -> new end date <= existing exchange rate end date
 
                     // split existing exchange rate into one before and one after new exchange rate
 
-                    if (startDate.isEqual(exchangeRate.getStartValidDate())) {
+                    if (startDateInput.isEqual(endDateOld)) {
                         // remove if start dates are the same
                         exchangeRates.remove(exchangeRate);
-                        System.out.print("removed ");
+                        /*System.out.print("removed ");
                         exchangeRate.print();
-                        System.out.println();
+                        System.out.println();*/
                     } else {
                         // adjust existing exchange rate to be before new one
-                        LocalDate adjustedEndDate = startDate.minusDays(1);
+                        LocalDate adjustedEndDate = startDateInput.minusDays(1);
                         exchangeRate.setEndValidDate(adjustedEndDate);
-                        System.out.print("adjusted ");
+                        /*System.out.print("adjusted ");
                         exchangeRate.print();
-                        System.out.println();
+                        System.out.println();*/
                     }
 
-                    if (endDate.isBefore(exchangeRate.getEndValidDate())) {
+                    if (endDateInput.isBefore(endDateOld)) {
                         // add exchange rate after new one
-                        LocalDate adjustedStartDate = endDate.plusDays(1);
+                        LocalDate adjustedStartDate = endDateInput.plusDays(1);
                         ExchangeRate afterExchangeRate = new ExchangeRate(
                                 currencyIsoCode,
                                 exchangeRate.getExchangeRateValue(),
                                 adjustedStartDate,
-                                exchangeRate.getEndValidDate());
+                                endDateOld);
                         exchangeRates.add(afterExchangeRate);
-                        System.out.print("added ");
+                        /*System.out.print("added ");
                         afterExchangeRate.print();
-                        System.out.println();
+                        System.out.println();*/
                         continue;
                     }
                 }
             }
 
             // check if start date overlaps with existing exchange rates
-            if (startDate.isAfter(exchangeRate.getStartValidDate())) {
+            if (startDateInput.isAfter(startDateOld)) {
                 // -> new start date > existing exchange rate start date
-                if (startDate.isBefore(exchangeRate.getEndValidDate()) ||
-                        startDate.isEqual(exchangeRate.getEndValidDate())) {
+                if (startDateInput.isBefore(endDateOld) ||
+                        startDateInput.isEqual(endDateOld)) {
                     // -> new start date <= existing exchange rate end date
                     // start date <= new start date <= end date ==> overlap
 
                     // adjust end date of existing exchange rate to one day before start date of new exchange rate
-                    LocalDate adjustedEndDate = startDate.minusDays(1);
+                    LocalDate adjustedEndDate = startDateInput.minusDays(1);
                     exchangeRate.setEndValidDate(adjustedEndDate);
-                    System.out.print("adjusted ");
+                    /*System.out.print("adjusted ");
                     exchangeRate.print();
-                    System.out.println();
+                    System.out.println();*/
                     continue;
                 }
             }
 
             // check if end date overlaps with existing exchange rates
-            if (endDate.isAfter(exchangeRate.getStartValidDate()) ||
-                    endDate.isEqual(exchangeRate.getStartValidDate())) {
+            if (endDateInput.isAfter(startDateOld) ||
+                    endDateInput.isEqual(startDateOld)) {
                 // -> new end date >= existing exchange rate start date
-                if (endDate.isBefore(exchangeRate.getEndValidDate())) {
+                if (endDateInput.isBefore(endDateOld)) {
                     // -> new end date <= existing exchange rate end date
                     // start date <= new end date <= end date ==> overlap
 
                     // adjust start date of existing exchange rate to one day after end date of new exchange rate
-                    LocalDate adjustedStartDate = endDate.plusDays(1);
+                    LocalDate adjustedStartDate = endDateInput.plusDays(1);
                     exchangeRate.setStartValidDate(adjustedStartDate);
-                    System.out.print("adjusted ");
+                    /*System.out.print("adjusted ");
                     exchangeRate.print();
-                    System.out.println();
+                    System.out.println();*/
                 }
             }
         }
