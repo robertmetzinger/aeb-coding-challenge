@@ -1,6 +1,7 @@
 package de.example.iata.aeb;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 public class ExchangeRate {
@@ -33,12 +34,20 @@ public class ExchangeRate {
         return endValidDate;
     }
 
+    public void setStartValidDate(LocalDate startValidDate) {
+        this.startValidDate = startValidDate;
+    }
+
+    public void setEndValidDate(LocalDate endValidDate) {
+        this.endValidDate = endValidDate;
+    }
+
     public void print() {
-        System.out.printf("ISO Code: %s, Exchange Rate: %s, start valid date: %s, end valid date: %s",
+        System.out.printf("ExchangeRate[ISO Code: %s | Exchange Rate: %s | start valid date: %s | end valid date: %s]",
                 getCurrencyIsoCode(),
                 getExchangeRateValue(),
-                getStartValidDate(),
-                getEndValidDate());
+                getStartValidDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                getEndValidDate().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")));
     }
 
     @Override
